@@ -3,8 +3,11 @@ package com.prod.project.airBnbApp.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -32,6 +35,28 @@ public class Inventory {
 
     @Column(nullable = false,columnDefinition = "INTEGER DEFAULT 0")
     private Integer bookedCount;
+
+    @Column(nullable = false)
     private Integer totalCount;
+
+    @Column(nullable = false,precision = 5,scale = 2)
+    private BigDecimal surgeFactor;
+
+    @Column(nullable = false,precision = 10,scale = 2)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private boolean closed;
+
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+
+    @Embedded
+    private HotelContactInfo contactInfo;
 
 }
