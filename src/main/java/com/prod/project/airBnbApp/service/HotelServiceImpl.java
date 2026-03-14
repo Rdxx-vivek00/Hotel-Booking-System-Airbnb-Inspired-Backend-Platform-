@@ -4,7 +4,6 @@ import com.prod.project.airBnbApp.dto.HotelDto;
 import com.prod.project.airBnbApp.entity.Hotel;
 import com.prod.project.airBnbApp.exception.ResourceNotFoundException;
 import com.prod.project.airBnbApp.repository.HotelRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -36,5 +35,28 @@ private final ModelMapper modelMapper;
                 .orElseThrow(()->new ResourceNotFoundException("Hotel not found with the id: "+id));
 
        return modelMapper.map(hotel,HotelDto.class);
+    }
+
+    @Override
+    public HotelDto updateHotelById(Long id,HotelDto hotelDto) {
+        log.info("updating the hotel with id: {}",id);
+        Hotel hotel= hotelRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Hotel not found with the id: "+id));
+       modelMapper.map(hotelDto,hotel);
+       hotel.setId(id);
+       hotel=hotelRepository.save(hotel);
+       return modelMapper.map(hotel,HotelDto.class);
+
+    }
+
+    @Override
+    public void deleteHotelById(Long id) {
+        boolean exists=hotelRepository.existsById(id);
+
+        if (!exists) throw new ResourceNotFoundException("Hotel not found with the id: "+id);
+
+
+        hotelRepository.deleteById(id);
+
     }
 }
