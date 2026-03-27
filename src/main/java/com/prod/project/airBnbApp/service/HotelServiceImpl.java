@@ -2,6 +2,7 @@ package com.prod.project.airBnbApp.service;
 
 import com.prod.project.airBnbApp.dto.HotelDto;
 import com.prod.project.airBnbApp.entity.Hotel;
+import com.prod.project.airBnbApp.entity.Room;
 import com.prod.project.airBnbApp.exception.ResourceNotFoundException;
 import com.prod.project.airBnbApp.repository.HotelRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class HotelServiceImpl implements HotelService{
 
 private final HotelRepository hotelRepository;
+private final InventoryService inventoryService;
 private final ModelMapper modelMapper;
 
     @Override
@@ -51,12 +53,34 @@ private final ModelMapper modelMapper;
 
     @Override
     public void deleteHotelById(Long id) {
-        boolean exists=hotelRepository.existsById(id);
-
-        if (!exists) throw new ResourceNotFoundException("Hotel not found with the id: "+id);
+        Hotel hotel= hotelRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Hotel not found with the id: "+id));
 
 
         hotelRepository.deleteById(id);
+        for(Room room:hotel.getRooms())
+        {
+            inventoryService.deleteFutureInventories(room);
+        }
+
+    }
+
+    @Override
+    public void activateHotel(Long hotelId) {
+        log.info("activating the hotel with id: {}",hotelId);
+        Hotel hotel= hotelRepository.findById(hotelId)
+                .orElseThrow(()->new ResourceNotFoundException("Hotel not found with the id: "+hotelId));
+
+        hotel.setActive(true);
+
+        //assuming only doing it once
+        for(Room room:hotel.getRooms())
+        {
+            inventoryService.initializeRoomForAYear(room);
+        }
+
+
+
 
     }
 }
