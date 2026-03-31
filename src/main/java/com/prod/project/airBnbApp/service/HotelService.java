@@ -1,6 +1,8 @@
 package com.prod.project.airBnbApp.service;
 
 import com.prod.project.airBnbApp.dto.HotelDto;
+import com.prod.project.airBnbApp.dto.HotelInfoDto;
+import org.jspecify.annotations.Nullable;
 
 public interface HotelService {
 
@@ -15,4 +17,5 @@ public interface HotelService {
     void activateHotel(Long hotelId);
 
 
+    HotelInfoDto getHotelInfoById(Long hotelId);
 }
