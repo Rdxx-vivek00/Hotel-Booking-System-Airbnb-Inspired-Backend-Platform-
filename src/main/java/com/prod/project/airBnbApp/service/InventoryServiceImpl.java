@@ -1,12 +1,11 @@
 package com.prod.project.airBnbApp.service;
 
-import com.prod.project.airBnbApp.dto.HotelDto;
+import com.prod.project.airBnbApp.dto.HotelPriceDto;
 import com.prod.project.airBnbApp.dto.HotelSearchRequest;
-import com.prod.project.airBnbApp.entity.Hotel;
 import com.prod.project.airBnbApp.entity.Inventory;
 import com.prod.project.airBnbApp.entity.Room;
+import com.prod.project.airBnbApp.repository.HotelMinPriceRepository;
 import com.prod.project.airBnbApp.repository.InventoryRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -26,6 +25,7 @@ public class InventoryServiceImpl implements InventoryService{
 
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
+    private final HotelMinPriceRepository hotelMinPriceRepository;
 
     @Override
     public void initializeRoomForAYear(Room room) {
@@ -54,12 +54,12 @@ public class InventoryServiceImpl implements InventoryService{
     }
 
     @Override
-    public Page<HotelDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
+    public Page<HotelPriceDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
         log.info("searching hotels for {} city from {} to {}",hotelSearchRequest.getCity(),hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate());
         Pageable pageable= PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
         Long dateCount= ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate())+1;
 
-        Page<Hotel> hotelPage=inventoryRepository.findHotelsWithAvailableInventory(hotelSearchRequest.getCity(),hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate(),hotelSearchRequest.getRoomsCount(),dateCount,pageable);
-       return hotelPage.map((element)->modelMapper.map(element,HotelDto.class));
+        Page<HotelPriceDto> hotelPage=hotelMinPriceRepository.findHotelsWithAvailableInventory(hotelSearchRequest.getCity(),hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate(),hotelSearchRequest.getRoomsCount(),dateCount,pageable);
+       return hotelPage;
     }
 }
